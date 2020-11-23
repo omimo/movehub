@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<!-- GrooveNet Player - V 0.3
+By Omid Alemi
+ -->
+<html lang="en">
+
+<head>
+    <title>GrooveNet Player</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+
+    <link rel="stylesheet" href="styles/pace.css"></link>
+
+    <script src="bower_components/pace/pace.min.js"></script>
+    <script src="bower_components/mathjs/dist/math.min.js"></script>
+    <script src="bower_components/jquery/dist/jquery.min.js"></script>
+    <script src="bower_components/three.js/build/three.min.js"></script>
+    <script src="bower_components/three.js/examples/js/controls/OrbitControls.js"></script>
+    <script src="bower_components/WebHamsters/src/hamsters.min.js"></script>
+    <script src="bower_components/papaparse/papaparse.min.js"></script>
+    <script src="bower_components/SoundManager2/script/soundmanager2-jsmin.js"></script>
+
+
+    <script src="js/scene_utils.js"></script>
+    <script src="js/extra.js"></script>
+    <script src="js/mocapjs.js"></script>
+    <script src="js/skeletonFactory.js"></script>
+
+    <style>
+        * {
+            box-sizing: border-box;            
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+
+    </style>
+</head>
+
+<body>
+  
+    <script>
+        var characters = [];
+        var playing = false;
+        var scene, camera, renderer;
+        var geometry, material, mesh;
+        var played_count = 0;
+  
+        function init(cz) {
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(30, window.innerWidth / window.innerHeight, 1, 4000);
+            camera.position.set(0, 80, 0);
+            camera.position.y = 174;
+            camera.position.z = cz;
+            scene.add(camera);
+        }
+
+        function loadFiles(bvhURL, mp3URL, movFormat, scale, fr) {
+
+            if (movFormat == 'bvh')
+                c2 = new BVHCharacter("Gholi", jointmaterial4, bonematerial5, makeJointGeometry_Dode, makeBoneGeometry_Cylinder2);
+            else if (movFormat == 'csv')
+                c2 = new C3DCharacter("Gholi", jm_a, makeMarkerGeometry_SphereX(1.5), bm_a, gnMakeBoneGeometry1);
+
+            // console.log(fr);
+            c2.scale = scale;
+            c2.frameTime = fr;
+
+            c2.setOriginPosition(0, 0, 140);
+            c2.skelScale = 1;
+            c2.loadFromURL(bvhURL, function() {
+               
+                if (movFormat == 'bvh') {
+                    scene.add(c2.skeleton);
+                    c2.skelScale=1.5;
+                }
+
+                var mySound = soundManager.createSound({
+                    id: 'aSound',
+                    url: mp3URL
+                });
+
+                soundManager.setup({
+                    loops: 1,
+
+                    onready: function() {
+                        playing = true;
+                        mySound.play();
+                        c2.playing = true;
+                    },
+                    ontimeout: function() {
+                        // Hrmm, SM2 could not start. Missing SWF? Flash blocked? Show an error, etc.?
+                    }
+                });
+            });
+
+            characters.push(c2);
+        }
+
+        function initRenderer() {
+            renderer = new THREE.WebGLRenderer({
+                antialias: true
+            });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.gammaInput = true;
+            renderer.gammaOutput = true;
+            renderer.setPixelRatio(window.devicePixelRatio);
+            // renderer.setClearColor(0xdddddd, 1);
+            renderer.setClearColor(0xffffff, 1);
+
+            
+            document.body.appendChild(renderer.domElement);
+
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+        }
+
+        function animate() {
+            // if (!playing)
+                // return;
+
+            requestAnimationFrame(animate);
+
+            characters.forEach(function(c) {
+                if (1 && c.ready) {
+                    if (c.playing) {
+                        c.animIndex = c.animOffset + Math.floor((Date.now() - c.animStartTimeRef) / c.frameTime / 1000);
+
+                        if (c.animIndex >= c.frameCount) {
+                            c.animOffset = 0;
+                            c.animStartTimeRef = Date.now();
+                            
+                            c.animIndex = Math.max(0, c.frameCount - 1);
+                            played_count++;
+                            if (played_count> 1)
+                                c.playing = false;
+
+                        }
+                        c.animFrame(c.animIndex);
+                    }
+                }
+            });
+            renderer.render(scene, camera);
+        }
+
+
+        $(document).ready(function () {            
+            var bvhURL = getUrlParameter('mov');
+            var mp3URL = getUrlParameter('aud');
+            var movFormat = getUrlParameter('movfmt');
+            var cz = getUrlParameter('cz');
+            var scale = getUrlParameter('scale');
+            var frameTime = getUrlParameter('frame_time');
+
+            if (cz === undefined)
+                cz = 550;
+            
+            if (scale === undefined)
+                scale = 1.0;
+            
+            if (frameTime === undefined)
+                frameTime = 1/120;
+            
+            if (bvhURL !==  undefined && mp3URL !==  undefined) {
+                init(cz);
+                add_basic_lights();
+                add_floor_theo();
+                initRenderer();
+                console.log("Loading " + bvhURL);                    
+                loadFiles(bvhURL, mp3URL, movFormat, scale, frameTime);
+         
+                // playing = true;
+                animate();
+            } else {
+                console.log("nothing to load");
+            }
+        });
+
+        
+    </script>
+</body>
+
+</html>
