@@ -10,6 +10,10 @@ body {
   flex-direction: column;
 }
 
+pre {
+  font-family: "Inconsolata", monospace;
+}
+
 a {
   color: orangered;
 }
@@ -522,10 +526,11 @@ main {
 }
 .header-box .left {
   flex: 2;
-  padding-right: 2rem;
+  padding-right: 3rem;
 }
 .header-box .right {
   flex: 1;
+  padding-top: 2rem;
 }
 .header-box .right div {
   margin-bottom: 1rem;
@@ -537,6 +542,13 @@ main {
 }
 .header-box .header-description {
   font-size: 1.1rem;
+  margin-bottom: 3rem;
+}
+.header-box .header-comments {
+  margin-top: 4rem;
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+  white-space: break-spaces;
 }
 
 table.collection-table {

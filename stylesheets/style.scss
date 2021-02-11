@@ -12,6 +12,10 @@ body {
     flex-direction: column;
 }
 
+pre {
+    font-family: 'Inconsolata', monospace;
+}
+
 a {
     color: $accent-color;
 }
@@ -571,10 +575,11 @@ main {
     border-radius: 5px;
     .left {
         flex: 2;
-        padding-right: 2rem;
+        padding-right: 3rem;
     }
     .right {
         flex: 1;
+        padding-top: 2rem;
         div {
             margin-bottom: 1rem;
         }
@@ -585,7 +590,14 @@ main {
         margin-bottom: 1rem;
     }
     .header-description {
-        font-size: 1.1rem
+        font-size: 1.1rem;
+        margin-bottom: 3rem;
+    }
+    .header-comments {
+        margin-top: 4rem;
+        font-size: 1.1rem;
+        margin-bottom: 1rem;
+        white-space: break-spaces;
     }
 }
 
