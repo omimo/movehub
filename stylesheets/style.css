@@ -549,6 +549,7 @@ main {
   font-size: 1.1rem;
   margin-bottom: 1rem;
   white-space: break-spaces;
+  flex-basis: 100%;
 }
 
 table.collection-table {
